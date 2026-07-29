@@ -7,6 +7,7 @@ export default ({ config }: ConfigContext): ExpoConfig => {
 
   return {
     ...config,
+    owner: 'hipopotamusss',
     name: 'PetCare',
     slug: 'petcare',
     version: '0.1.0',
@@ -15,11 +16,13 @@ export default ({ config }: ConfigContext): ExpoConfig => {
     scheme: 'petcare',
     userInterfaceStyle: 'automatic',
     ios: {
+      ...config.ios,
       supportsTablet: true,
-      bundleIdentifier: 'com.example.petcare',
+      bundleIdentifier: 'com.hipopotamusss.petcare',
     },
     android: {
-      package: 'com.example.petcare',
+      ...config.android,
+      package: 'com.hipopotamusss.petcare',
       predictiveBackGestureEnabled: false,
     },
     web: {
@@ -42,7 +45,12 @@ export default ({ config }: ConfigContext): ExpoConfig => {
       reactCompiler: true,
     },
     extra: {
+      ...config.extra,
       appEnvironment,
+      eas: {
+        ...(config.extra?.eas ?? {}),
+        projectId: '2b825c06-1de6-46d1-9842-8b2184735f2e',
+      },
     },
   };
 };
