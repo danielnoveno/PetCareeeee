@@ -1,0 +1,33 @@
+{
+  "$schema": "https://opencode.ai/config.json",
+  "share": "disabled",
+  "permission": {
+    "*": "ask",
+    "read": "allow",
+    "glob": "allow",
+    "grep": "allow",
+    "list": "allow",
+    "edit": "ask",
+    "task": "ask",
+    "external_directory": "ask",
+    "skill": {
+      "*": "ask",
+      "petcare-review": "allow",
+      "petcare-learning-coach": "allow"
+    },
+    "bash": {
+      "*": "ask",
+      "git status*": "allow",
+      "git diff*": "allow",
+      "git log*": "allow",
+      "npm run lint*": "allow",
+      "npm run typecheck*": "allow",
+      "npm test*": "allow",
+      "git push*": "deny",
+      "git reset --hard*": "deny",
+      "npm publish*": "deny",
+      "eas submit*": "deny",
+      "eas build*": "ask"
+    }
+  }
+}

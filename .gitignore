@@ -1,1 +1,41 @@
+# Local planning prompts (not application source)
 prompts/
+
+# Dependencies
+node_modules/
+
+# Expo
+.expo/
+dist/
+web-build/
+expo-env.d.ts
+
+# Native generated projects
+/android/
+/ios/
+.kotlin/
+
+# Local environment and credentials
+.env
+.env.*
+!.env.example
+*.jks
+*.p8
+*.p12
+*.key
+*.mobileprovision
+*.pem
+
+# Tooling output
+coverage/
+*.tsbuildinfo
+npm-debug.*
+yarn-debug.*
+yarn-error.*
+.metro-health-check*
+
+# Operating systems and editors
+.DS_Store
+
+# Temporary foundation scaffold
+.scaffold/
