@@ -1,65 +1,111 @@
 # Environment Audit — 2026-07-29
 
-| Component          | Observed                                 | Foundation requirement              | Status       |
-| ------------------ | ---------------------------------------- | ----------------------------------- | ------------ |
-| Windows            | Windows 11 (user-provided)               | Supported by Expo                   | Ready        |
-| Node.js            | 20.11.0                                  | Expo SDK 57 requires 22.13.x+       | Blocked      |
-| npm                | 10.2.4                                   | npm package manager                 | Available    |
-| Git                | 2.43.0.windows.1                         | Git available                       | Ready        |
-| Android Studio     | Installed under `C:\Program Files`       | Android IDE available               | Installed    |
-| Java               | PATH selects Oracle Java 8u501, x86 shim | Android Studio bundled JBR exists   | Needs repair |
-| ADB                | Not found in PATH                        | Android SDK platform-tools          | Blocked      |
-| Emulator           | Not found in PATH                        | Android emulator command            | Blocked      |
-| Android env        | `ANDROID_HOME`/`ANDROID_SDK_ROOT` absent | SDK path configured                 | Blocked      |
-| Codex CLI          | 0.146.0                                  | CLI available                       | Installed    |
-| OpenCode CLI       | 1.18.9                                   | CLI available                       | Installed    |
-| Drive D free space | 115.14 GB                                | Sufficient for project dependencies | Ready        |
+## Verified environment
 
-No environment component was installed or changed automatically. Recommended
-repair is Node 24 LTS, followed by a documented Android Studio/JDK/SDK PATH
-review. Those machine-level changes require a separate approved step.
+| Component          | Verified value                                    | Status    |
+| ------------------ | ------------------------------------------------- | --------- |
+| Node.js            | 24.18.0 at `C:\Program Files\nodejs\node.exe`     | Ready     |
+| npm                | 11.16.0 at `C:\Program Files\nodejs\npm.cmd`      | Ready     |
+| Java for Gradle    | OpenJDK 17.0.11 from Android Studio's bundled JBR | Ready     |
+| `JAVA_HOME`        | `C:\Program Files\Android\Android Studio\jbr`     | Ready     |
+| Android SDK        | `D:\flutter\sdk`                                  | Ready     |
+| `ANDROID_HOME`     | `D:\flutter\sdk`                                  | Ready     |
+| ADB                | 35.0.2 in `D:\flutter\sdk\platform-tools`         | Ready     |
+| Emulator           | 35.1.20 in `D:\flutter\sdk\emulator`              | Ready     |
+| Command-line tools | 16.0 in `D:\flutter\sdk\cmdline-tools\latest\bin` | Ready     |
+| Android AVD        | `Pixel_7_API_33`                                  | Available |
 
-## Verification blockers
+The active Node installation is the Winget package `OpenJS.NodeJS.LTS`
+24.18.0. The previous `OpenJS.NodeJS.20` package is no longer registered after
+the successful upgrade, but its files were backed up before the change.
 
-- `npm run verify` stops at typecheck because project dependencies are not
-  installed and `tsc` is unavailable.
-- The lockfile was created with lifecycle scripts disabled. npm confirmed the
-  Node engine mismatch.
-- `npm audit --omit=dev` reports 21 transitive advisories. Its suggested
-  `--force` resolution downgrades core Expo/React Native packages, so no
-  automatic fix was applied.
-- Android runtime verification cannot start until ADB, Emulator, SDK paths,
-  and a suitable JDK are available.
-- The active workspace folder is locked by its host process, so renaming it to
-  the required repository folder is pending a workspace restart.
+The SDK contains Android platforms 31, 33, 34, and 35 plus Build-Tools 30.0.3,
+33.0.1, and 35.0.0. Expo SDK 57 targets Android API 36. Android SDK Platform 36
+and Build-Tools 36.x are not installed yet. No SDK package was installed and no
+Android build was attempted during this stage.
 
-## Proposed repair — requires user approval
+## Backup
 
-### Node
+The pre-change environment backup is stored outside the repository at:
 
-Use the official Node.js 24 LTS Windows x64 installer. It will replace or update
-the executable under `C:\Program Files\nodejs`, update machine PATH entries,
-and include a newer npm. Before running it, record the current Node/npm paths
-and versions, npm prefix/config locations, global package list, and user/machine
-PATH to a timestamped backup outside this repository. Then install, restart the
-terminal, verify versions and paths, run `npm ci`, and run `npm run verify`.
+`D:\PROJECT 2026\agent-toolbox\backups\petcare-environment-20260729-145232`
 
-The existing installation method could not be identified from the uninstall
-registry. A read-only Winget query stopped at Microsoft Store source agreements;
-no agreement was accepted and no package changed.
+It contains user and machine environment registry exports, a PowerShell
+environment snapshot, npm configuration and global-package data, and a copy of
+the previous Node 20.11.0 installation.
 
-### Android
+The official Node 24.18.0 Windows x64 archive and checksum file are retained at:
 
-Android Studio and its bundled JBR are present, but the SDK is not at the
-default user location and the shell selects an obsolete Java shim. First use
-Android Studio's SDK Manager to locate or install SDK Platform 36,
-platform-tools, build-tools, and Emulator. Before changing environment
-variables, back up user/machine PATH plus any existing `JAVA_HOME`,
-`ANDROID_HOME`, and `ANDROID_SDK_ROOT` values. Proposed user-level changes are:
+`D:\PROJECT 2026\agent-toolbox\downloads\node-v24.18.0`
 
-- point `JAVA_HOME` to Android Studio's bundled JBR;
-- set `ANDROID_HOME` to the confirmed SDK directory;
-- add the confirmed `platform-tools` and `emulator` directories to user PATH.
+The archive checksum was verified before use. A separately extracted and
+verified portable copy remains at `D:\dev\node-v24.18.0-win-x64`.
 
-No Android installer, SDK package, environment variable, or PATH entry was
-changed in this session.
+## Configuration changes
+
+Only user-level environment values were changed:
+
+- `JAVA_HOME` was set after verifying the exact bundled JBR path and Java
+  version.
+- `ANDROID_HOME` was set after locating the actual SDK.
+- `platform-tools`, `emulator`, and `cmdline-tools\latest\bin` were appended to
+  user PATH once, without duplicates.
+
+`ANDROID_SDK_ROOT` and `STUDIO_JDK` remain unset. Machine environment values
+were not changed, Java 8 was not removed, and `setx PATH` was not used. A newly
+opened terminal is required to inherit the persisted user environment. Gradle
+uses `JAVA_HOME`; the verification shell explicitly placed its `bin` directory
+first so `java -version` selected JBR 17 instead of the older machine Java
+shim.
+
+## Project verification
+
+Dependencies were installed from `package-lock.json` with `npm ci`. The checks
+were rerun before the first Android verification attempt and passed:
+
+- `npx expo install --check`: dependencies are up to date.
+- `npx expo-doctor`: 20 of 20 checks passed.
+- `npm run verify`: TypeScript, ESLint, Prettier, and all 7 Jest tests passed.
+
+The dependency check required the declared `expo-linking` peer dependency.
+ESLint was aligned with Expo's supported major version, and the TypeScript
+import resolver was declared directly. npm reports 43 transitive audit
+findings (11 moderate and 32 high); no forced audit fix was run.
+
+## First Android verification attempt
+
+The read-only preflight produced these results:
+
+- `platforms\android-36` is absent.
+- No `build-tools\36.x` directory is installed.
+- SDK Manager lists the stable packages `platforms;android-36` and
+  `build-tools;36.0.0` as available.
+- The existing AVD `Pixel_7_API_33` is available; no new AVD was created.
+- `adb devices -l` started the ADB daemon successfully but listed no device or
+  emulator.
+- `npx expo install --check` reports dependencies are up to date.
+- `npx expo-doctor` passes all 20 checks.
+- `npm run verify` passes TypeScript, ESLint, Prettier, and all 7 Jest tests.
+
+The current Codex shell was opened before the persisted user environment
+changes and still selects the legacy Java 8 shim. The SDK catalog was therefore
+queried with a process-local reference to the already verified Android Studio
+JBR 17. No persisted Java, Node, Android, or PATH value was changed.
+
+Installation requires approval before running:
+
+```powershell
+sdkmanager "platforms;android-36" "build-tools;36.0.0"
+```
+
+The Android build was not started because both required SDK packages are
+missing and the emulator is not connected. Consequently, Gradle completion,
+app installation and launch, navigation placeholder behavior, the environment
+check page, and Metro's red-error state have not yet been manually verified.
+
+## Repository path
+
+`Get-Location` confirms the active workspace is now
+`D:\PROJECT 2026\PetCare`. The former `ios-app-1` name is retained here only as
+historical context for the completed rename; it is no longer an active path or
+instruction.

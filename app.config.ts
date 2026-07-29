@@ -14,7 +14,6 @@ export default ({ config }: ConfigContext): ExpoConfig => {
     icon: './assets/images/petcare-icon.png',
     scheme: 'petcare',
     userInterfaceStyle: 'automatic',
-    newArchEnabled: true,
     ios: {
       supportsTablet: true,
       bundleIdentifier: 'com.example.petcare',
